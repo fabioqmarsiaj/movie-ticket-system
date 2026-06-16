@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+	implementation(project(":libs:commons"))
 	runtimeOnly("org.postgresql:postgresql")
 
 	implementation("org.springframework.boot:spring-boot-starter-kafka")
