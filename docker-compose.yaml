@@ -13,7 +13,7 @@ services:
 
   booking-service:
     build:
-      context: ./booking-service
+      context: ./services/booking-service
       dockerfile: Dockerfile
     container_name: booking-service
     ports:
@@ -28,7 +28,7 @@ services:
 
   payment-service:
     build:
-      context: ./payment-service
+      context: ./services/payment-service
       dockerfile: Dockerfile
     container_name: payment-service
     ports:
@@ -43,7 +43,7 @@ services:
 
   seat-service:
     build:
-      context: ./seat-service
+      context: ./services/seat-service
       dockerfile: Dockerfile
     container_name: seat-service
     ports:
@@ -73,7 +73,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 # Apenas 1 broker local
