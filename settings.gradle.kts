@@ -7,4 +7,5 @@ rootProject.name = "movie-ticket-system"
 include("services:booking-service")
 include("services:payment-service")
 include("services:seat-service")
+include("services:orchestrator-service")
 include("libs:commons")

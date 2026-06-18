@@ -1,6 +1,7 @@
 package com.fabioqmarsiaj.movie.mapper;
 
 import com.fabioqmarsiaj.movie.entity.Booking;
+import com.fabioqmarsiaj.movie.events.BookingCreatedEvent;
 import com.fabioqmarsiaj.movie.requests.BookingRequest;
 
 import java.util.UUID;
@@ -15,6 +16,19 @@ public class BookingRequestToEntityMapper {
         booking.setSeatIds(request.seatIds());
         booking.setUserId(request.userId());
         booking.setStatus("CONFIRMED");
+        booking.setCreatedAt(java.time.Instant.now());
+        booking.setAmount(request.amount());
+        return booking;
+    }
+
+    public static Booking mapEvents(BookingCreatedEvent request) {
+        Booking booking = new Booking();
+        booking.setId(System.currentTimeMillis());
+        booking.setShowId(request.showId());
+        booking.setBookingCode(request.bookingId());
+        booking.setSeatIds(request.seatIds());
+        booking.setUserId(request.userId());
+        booking.setStatus(request.status());
         booking.setCreatedAt(java.time.Instant.now());
         booking.setAmount(request.amount());
         return booking;

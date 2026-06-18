@@ -11,6 +11,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  orchestrator-service:
+    build:
+      context: ./services/orchestrator-service
+      dockerfile: Dockerfile
+    container_name: orchestrator-service
+    ports:
+      - '8085:8085'
+
   booking-service:
     build:
       context: ./services/booking-service

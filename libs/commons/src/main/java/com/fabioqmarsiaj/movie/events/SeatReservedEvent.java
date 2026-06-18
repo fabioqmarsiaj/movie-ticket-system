@@ -1,3 +1,5 @@
 package com.fabioqmarsiaj.movie.events;
 
-public record SeatReservedEvent(String bookingId, boolean reserved, long amount) {}
+import java.util.List;
+
+public record SeatReservedEvent(String bookingId, String showId, List<String> seatIds, boolean reserved, long amount) {}

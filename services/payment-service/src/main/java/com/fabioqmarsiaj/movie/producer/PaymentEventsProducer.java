@@ -1,8 +1,7 @@
-package com.fabioqmarsiaj.movie;
+package com.fabioqmarsiaj.movie.producer;
 
 import com.fabioqmarsiaj.movie.commons.KafkaConfigProperties;
 import com.fabioqmarsiaj.movie.events.BookingPaymentEvent;
-import com.fabioqmarsiaj.movie.events.SeatReservedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -17,17 +16,17 @@ public class PaymentEventsProducer {
         this.template = template;
     }
 
-    public void publishPaymentSuccessEvent(SeatReservedEvent event) {
+    public void publishPaymentSuccessEvent(BookingPaymentEvent event) {
         log.info("Publishing payment success event ...");
-        BookingPaymentEvent paymentEvent = new BookingPaymentEvent(event.bookingId(), true, event.amount());
+        BookingPaymentEvent paymentEvent = new BookingPaymentEvent(event.bookingId(), event.showId(), event.seatIds(), true, event.amount());
         template
                 .send(KafkaConfigProperties.PAYMENT_EVENTS_TOPIC, event.bookingId(), paymentEvent);
 
     }
 
-    public void publishPaymentFailureEvent(SeatReservedEvent event) {
+    public void publishPaymentFailureEvent(BookingPaymentEvent event) {
         log.info("Publishing payment failure event ...");
-        BookingPaymentEvent paymentEvent = new BookingPaymentEvent(event.bookingId(), false, event.amount());
+        BookingPaymentEvent paymentEvent = new BookingPaymentEvent(event.bookingId(), event.showId(), event.seatIds(), false, event.amount());
         template
                 .send(KafkaConfigProperties.PAYMENT_EVENTS_TOPIC, event.bookingId(), paymentEvent);
 

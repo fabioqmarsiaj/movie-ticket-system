@@ -11,7 +11,7 @@ import static com.fabioqmarsiaj.movie.commons.KafkaConfigProperties.SEAT_RESERVE
 @Slf4j
 public class SeatReserveProducer {
 
-    private KafkaTemplate<String, SeatReservedEvent> template;
+    private final KafkaTemplate<String, SeatReservedEvent> template;
 
     public SeatReserveProducer(KafkaTemplate<String, SeatReservedEvent> template) {
         this.template = template;

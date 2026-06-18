@@ -2,7 +2,6 @@ package com.fabioqmarsiaj.movie.service;
 
 import com.fabioqmarsiaj.movie.entity.SeatInventory;
 import com.fabioqmarsiaj.movie.enums.SeatStatus;
-import com.fabioqmarsiaj.movie.events.BookingCreatedEvent;
 import com.fabioqmarsiaj.movie.events.SeatReservedEvent;
 import com.fabioqmarsiaj.movie.messaging.SeatReserveProducer;
 import com.fabioqmarsiaj.movie.repository.SeatInventoryRepository;
@@ -24,38 +23,35 @@ public class SeatInventoryService {
         this.seatInventoryRepository = seatInventoryRepository;
     }
 
-    public void handleBooking(BookingCreatedEvent event) {
+    public void reserveSeats(SeatReservedEvent event) {
 
         log.info("SeatInventoryService:: Processing bookingCreated for bookingId {}", event.bookingId());
 
-        // Fetch seat inventories for the given show and seat numbers
         List<SeatInventory> seats = seatInventoryRepository
                 .findByShowIdAndSeatNumberIn(event.showId(), event.seatIds());
 
-        // Check if all seats are available
         boolean allAvailable = seats.stream()
                 .allMatch(s -> s.getStatus() == SeatStatus.AVAILABLE);
 
         if (allAvailable) {
-            // Update seat status to LOCKED and set current booking ID
             seats.forEach(s -> {
                 s.setStatus(SeatStatus.LOCKED);
                 s.setCurrentBookingId(event.bookingId());
             });
             seatInventoryRepository.saveAll(seats);
-            // Publish seat reserved event
+
             seatReserveProducer
-                    .publishSeatReserveEvents(new SeatReservedEvent(event.bookingId(), true, event.amount()));
+                    .publishSeatReserveEvents(new SeatReservedEvent(event.bookingId(), event.showId(), event.seatIds(), true, event.amount()));
             log.info("SeatInventoryService:: Seats locked successfully for bookingId {}", event.bookingId());
-        }else{
+        } else {
             log.warn("SeatInventoryService:: Seat locking failed for bookingId {}. Some seats are not available.", event.bookingId());
-            // Publish seat reserved event with failure
+
             seatReserveProducer
-                    .publishSeatReserveEvents(new SeatReservedEvent(event.bookingId(), false, event.amount()));
+                    .publishSeatReserveEvents(new SeatReservedEvent(event.bookingId(), event.showId(), event.seatIds(), false, event.amount()));
         }
     }
 
-    public void releaseSeatsOnPaymentFailure(String bookingId) {
+    public void rollbackSeatReservationOnFailure(String bookingId) {
         log.info("SeatInventoryService:: Releasing seats for bookingId {}", bookingId);
 
         List<SeatInventory> bookingSeats = seatInventoryRepository.findByCurrentBookingId(bookingId);
@@ -68,9 +64,7 @@ public class SeatInventoryService {
         seatInventoryRepository.saveAll(bookingSeats);
         log.info("SeatInventoryService:: Seats released successfully for bookingId {}", bookingId);
 
-        //send failed event to downstream (booking-service)
-
         seatReserveProducer
-                .publishSeatReserveEvents(new SeatReservedEvent(bookingId, false, 0));
+                .publishSeatReserveEvents(new SeatReservedEvent(bookingId, null, null, false, 0));
     }
 }
